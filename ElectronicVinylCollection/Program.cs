@@ -1,5 +1,6 @@
 using ElectronicVinylCollection.Controllers;
 using ElectronicVinylCollection.Entities;
+using ElectronicVinylCollection.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,6 +13,7 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<VinylDbContext>();
 
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
+builder.Services.AddScoped<IUserService, UserService>();
 
 var app = builder.Build();
 

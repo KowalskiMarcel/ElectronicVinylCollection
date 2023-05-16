@@ -4,6 +4,7 @@ using ElectronicVinylCollection.Entities;
 using ElectronicVinylCollection.Models;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using ElectronicVinylCollection.Services;
 
 namespace ElectronicVinylCollection.Controllers
 {
@@ -11,22 +12,18 @@ namespace ElectronicVinylCollection.Controllers
     [Route("api")]
     public class VinylController : ControllerBase
     {
-        private readonly VinylDbContext _dbContext;
-        private readonly IMapper _mapper;
 
-        public VinylController(VinylDbContext dbContext, IMapper mapper) 
+        private readonly IUserService _userService;
+
+        public VinylController(IUserService userService)
         {
-            _dbContext = dbContext;
-            _mapper = mapper;
+            _userService = userService;
         }
+
         [HttpGet("user")]
         public ActionResult<IEnumerable<UserDto>> GetAll()
         {
-            var users = _dbContext
-                .Users
-                .ToList();
-
-            var usersDtos = _mapper.Map<List<UserDto>>(users);
+            var usersDtos = _userService.GetAll();
 
             return Ok(usersDtos);
         }
@@ -34,33 +31,27 @@ namespace ElectronicVinylCollection.Controllers
         [HttpGet("user/{id}")]
         public ActionResult<User> Get([FromRoute]int id) 
         {
-            var user = _dbContext
-                .Users
-                .Include(u => u.Medias)
-                .FirstOrDefault(u => u.Id == id);
+            var user = _userService.GetById(id);
 
             if(user == null)
             {
                 return NotFound();
             }
 
-            var userDto = _mapper.Map<UserDto>(user);
-            return Ok(userDto);
+            return Ok(user);
         }
 
         [HttpPost("user")]
-        public ActionResult CreateUser([FromBody]CreateUserDto dto)
+        public ActionResult CreateUser([FromBody] CreateUserDto dto)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var user = _mapper.Map<User>(dto);
-            _dbContext.Users.Add(user);
-            _dbContext.SaveChanges();
+            var id = _userService.GetAll();
 
-            return Created($"/api/user/{user.Id}", null);
+            return Created($"/api/user/{id}", null);
         }
     }
 }
