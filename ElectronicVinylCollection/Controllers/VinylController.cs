@@ -49,9 +49,39 @@ namespace ElectronicVinylCollection.Controllers
                 return BadRequest(ModelState);
             }
 
-            var id = _userService.GetAll();
+            var id = _userService.Create(dto);
 
             return Created($"/api/user/{id}", null);
+        }
+
+        [HttpDelete("user/{id}")]
+        public ActionResult Delete([FromRoute] int id)
+        {
+            var isDeleted = _userService.Delete(id);
+
+            if (isDeleted)
+            {
+                return NoContent();
+            }
+
+            return NotFound();
+        }
+
+        [HttpPut("user/{id}")]
+        public ActionResult Put([FromBody] ModificateUserDto dto, [FromRoute] int id)
+        {
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var isUpdatyd = _userService.Put(id, dto);
+            if (!isUpdatyd)
+            {
+                return NotFound();
+            }
+            return Ok();
         }
     }
 }
